@@ -309,7 +309,7 @@ public class Analyser implements Animator, Automata {
 		explorerContext.stateCount = 0;
 		
 		int nTrans = 0;
-		MyHashQueue hashQueue = new MyHashQueue(100001);
+		MyHashQueue hashQueue = new MyHashQueue(100010);
 		
 		if (partialOrderReduction) {
 			partial = new PartialOrder(alphabet, actionName, sm,
@@ -322,7 +322,13 @@ public class Analyser implements Animator, Automata {
 		
 		MyHashQueueEntry queueEntry = null;
 		int tracesCount = 0;
-		while (!hashQueue.empty() && tracesCount <= 5){
+		
+		HashSet<LinkedList<Integer>> traces = new HashSet<LinkedList<Integer>>();
+		
+		while (!hashQueue.empty() &&
+				tracesCount <= TraceProduceOptions.getTraceNumber() && 
+				stateCount < 100000){
+			
 			queueEntry = hashQueue.peek();
 			fromState = queueEntry.key;
 			int[] state = coder.decode(fromState);
@@ -344,30 +350,73 @@ public class Analyser implements Animator, Automata {
 					byte[] code = coder.encode(next);
 					nTrans++;
 					if (code == null){
-						output.out("Depth " + hashQueue.depth(queueEntry) + " ");
-						outStatistics(stateCount, nTrans);
+						
 						
 						int i = 0;
 						while (next[i] >= 0)
 							i++;
 						errorMachine = i;
 						
-						trace = hashQueue.getPath(queueEntry, actionName);
-						trace.add(actionName[next[Nmach]]);				
 						
-						output.outln("Trace to property violation in "
+						LinkedList<Integer> newTrace = hashQueue.getRawPath(queueEntry);
+								
+						if (checkSimilarity(traces,newTrace) && checkContainActions(newTrace,actionName)){
+							output.out("Depth " + hashQueue.depth(queueEntry) + " ");
+							outStatistics(stateCount, nTrans);
+							
+							traces.add(newTrace);
+							
+							trace = hashQueue.getPath(queueEntry, actionName);
+							trace.add(actionName[next[Nmach]]);
+							
+							output.outln("Trace to property violation in "
 								+ sm[errorMachine].name + ":");
-						tracer.print(output, trace, true);
-						tracesCount++;
+							tracer.print(output, trace, true);
+							tracesCount++;
+						}
 					}
 					else hashQueue.addPut(code, next[Nmach], queueEntry);
 				}
 			}
 		}
 		
-		
+		if (tracesCount < TraceProduceOptions.getTraceNumber()){
+			output.outln("Only found " + tracesCount + " traces.");
+		}
 		
 	}
+	
+	public boolean checkSimilarity(HashSet<LinkedList<Integer>> traces, LinkedList<Integer> trace){
+		
+		for (LinkedList<Integer> tmptrace:traces){
+			int len = tmptrace.size() < trace.size() ? tmptrace.size():trace.size();
+			int count =0;
+			for (int i =0 ;i<len;i++){
+				if (tmptrace.get(i) == trace.get(i)) count++;
+				else break;
+			}
+			if (count > TraceProduceOptions.getMaxSimilarity()) return false;
+		}
+		
+		return true;
+	}
+	
+	public boolean checkContainActions(LinkedList<Integer> trace, String[] actionNames){
+		HashSet<String> actions = new HashSet<String>();
+		for (String action:TraceProduceOptions.getContainActions().split(";")){
+			if (action == "" || actions.contains(action)) continue;
+			
+			actions.add(action);
+		}
+		
+		for (Integer actionNum:trace){
+			if (actions.contains(actionNames[actionNum]))
+				actions.remove(actionNames[actionNum]);
+		}
+		
+		return actions.isEmpty();
+	}
+	
 
 	// >>> AMES: Deadlock Insensitive Analysis, multiple counterexamples
 	public boolean analyse(boolean checkDeadlocks) {

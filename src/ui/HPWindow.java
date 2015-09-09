@@ -1983,13 +1983,24 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 				if (o == null)
 					return;
 				TraceProduceOptions.setTraceNumber(Integer.parseInt(o));
+				
 				o = (String) JOptionPane.showInputDialog(this,
 						"Enter maximum similarity:",
-						"Supertrace parameters", JOptionPane.PLAIN_MESSAGE, null,
+						"Trace produce parameters", JOptionPane.PLAIN_MESSAGE, null,
 						null, "" + TraceProduceOptions.getMaxSimilarity());
 				if (o == null)
 					return;
 				TraceProduceOptions.setMaxSimilarity(Integer.parseInt(o));
+				
+				o = (String) JOptionPane.showInputDialog(this,
+						"Enter actions to show up in the traces (separated by ';') :",
+						"Trace produce parameters", JOptionPane.PLAIN_MESSAGE, null,
+						null, "" + TraceProduceOptions.getContainActions());
+				if (o == null)
+					return;
+				
+				TraceProduceOptions.setContainActions(o);
+				
 			} catch (NumberFormatException e) {
 			}
 		}

@@ -1,3 +1,8 @@
+/*
+ * modified by Junyuan Zhang
+ * Sept,9th,2015
+ * added new method getRawPath()
+ */
 package lts;
 
 import java.lang.UnsupportedOperationException;
@@ -264,6 +269,16 @@ public class MyHashQueue implements StackCheck, Iterable, StateMap {
 		while (end != null) {
 			if (end.parent != null)
 				trace.addFirst(actionNames[end.action]);
+			end = end.parent;
+		}
+		return trace;
+	}
+	
+	public LinkedList<Integer> getRawPath(MyHashQueueEntry end){
+		LinkedList<Integer> trace = new LinkedList<Integer>();
+		while (end!=null){
+			if (end.parent != null)
+				trace.addFirst(end.action);
 			end = end.parent;
 		}
 		return trace;

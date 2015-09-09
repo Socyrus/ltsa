@@ -8,6 +8,7 @@ package lts;
 public class TraceProduceOptions {
 	private static int traceNumber = 5;
 	private static int maxSimilarity = 100000;
+	private static String containActions = "";
 	
 	public static void setTraceNumber(int tn){
 		traceNumber = tn;
@@ -23,6 +24,14 @@ public class TraceProduceOptions {
 	
 	public static int getMaxSimilarity(){
 		return maxSimilarity;
+	}
+	
+	public static void setContainActions(String actions){
+		containActions = actions.replace(" ","");
+	}
+	
+	public static String getContainActions(){
+		return containActions;
 	}
 	
 }

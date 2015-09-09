@@ -1789,6 +1789,29 @@ public class LTSCompiler {
 		case Symbol.EVENTUALLY:
 		case Symbol.ALWAYS:
 			next_symbol_mod();
+			if (current.kind == Symbol.LCURLY && op.kind == Symbol.ALWAYS){
+				next_symbol();
+				HashSet<Integer> possibleSet = new HashSet<Integer>();
+				possibleSet.add(new Integer(Symbol.LESS_THAN));
+				possibleSet.add(new Integer(Symbol.LESS_THAN_EQUAL));
+				current_is(possibleSet,"expect < or <=");
+				Symbol sym = new Symbol(current);
+				
+				next_symbol();
+				current_is(Symbol.INT_VALUE,"expect a integer");
+				if (sym.kind == Symbol.LESS_THAN_EQUAL)
+					current.setIntValue(current.intValue()+1);
+				
+				if (current.intValue() < 1) error("expect a integer >= 1 ");
+				
+				op.setIntValue(current.intValue());
+				op.setBoundedOp(true);
+				op.setLessThan(true);
+				next_symbol();
+				current_is(Symbol.RCURLY,"expect }");
+				
+				next_symbol();		
+			}
 			return FormulaSyntax.make(null, op, ltl_unary());
 		case Symbol.UPPERIDENT:
 			next_symbol_mod();

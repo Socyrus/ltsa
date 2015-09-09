@@ -1,3 +1,9 @@
+/*
+ * modified by Junyun Zhang
+ * 2015.9.4
+ * boundedOp, lessThan added
+ */
+
 package lts;
 
 import java.awt.Color;
@@ -12,9 +18,11 @@ public class Symbol {
 	public int endPos = -1; // end offset of token in input
 
 	private String string; // holds identifiers as well as string literals
-	private int longValue;
+	private long longValue;
 	private BigDecimal doubleValue;
 	private Object any; // add additional information
+	private boolean boundedOp = false; // Is the op a bounded one
+	private boolean lessThan = false; // Is this bounded op less than
 
 	public Symbol() {
 		this.kind = UNKNOWN_TYPE;
@@ -64,6 +72,23 @@ public class Symbol {
 		this.string= null;
 		this.doubleValue= v;
 	}
+	
+	public void setBoundedOp(boolean value){
+		boundedOp = value;
+	}
+	
+	
+	public boolean boundedOp(){
+		return boundedOp;
+	}
+	
+	public void setLessThan(boolean value){
+		lessThan = value;
+	}
+	
+	public boolean lessThan(){
+		return lessThan;
+	}
 
 	public void setString(String s) {
 		string = s;
@@ -81,7 +106,11 @@ public class Symbol {
 		return doubleValue;
 	}
 
-	public int intValue() {
+	public void setIntValue(long intValue){
+		longValue = intValue;
+	}
+	
+	public long intValue() {
 		return longValue;
 	}
 
@@ -690,6 +719,7 @@ public class Symbol {
 		blueSymbols.add(GRAPH_TRANSITIONS);
 		blueSymbols.add(FOREACH);
 		blueSymbols.add(ENACTMENT);
+		blueSymbols.add(SYSTEM);
 	}
 
 	@Override

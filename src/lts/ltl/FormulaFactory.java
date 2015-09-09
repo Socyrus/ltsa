@@ -103,21 +103,38 @@ public class FormulaFactory {
 		switch (op.kind) {
 			case Symbol.PLING:       
 			     return makeNot(right);
-			case Symbol.NEXTTIME:
-			     if (normalLTL)    
-			        return makeNext(right);
-				 else
-				    return makeNext(makeWeakUntil(makeNot(makeTick()),makeAnd(makeTick(),right)));	
+			case Symbol.NEXTTIME:		
+				  if (normalLTL)    
+					return makeNext(right);
+				  else
+					return makeNext(makeWeakUntil(makeNot(makeTick()),makeAnd(makeTick(),right)));	
 			case Symbol.EVENTUALLY: 
 			      if (normalLTL) 
 			         return makeEventually(right);
 				  else
 				     return makeEventually(makeAnd(makeTick(),right)); 
 			case Symbol.ALWAYS: 
+				  if (op.boundedOp() && op.lessThan()){
+					  if (op.intValue() == 1){  // same as nextTime
+						  Symbol newOp = new Symbol(op);
+						  newOp.kind = Symbol.NEXTTIME;
+						  return make(left, newOp, right);
+					  }
+					  else{
+						  Symbol newOp = new Symbol(op);
+						  newOp.kind = Symbol.NEXTTIME;
+						  op.setIntValue(op.intValue() - 1);
+						  Formula tmp = make(left,newOp,right);
+						  System.out.println(makeAnd(make(left, op, tmp), tmp));
+						  return makeAnd(make(left, op, tmp), tmp);
+					  }
+				  }
+				  else{
 			      if (normalLTL)     
 			          return makeAlways(right);
 				  else
 				      return makeAlways(makeImplies(makeTick(),right));  
+				  }
 			case Symbol.AND:         
 			      return makeAnd(left,right);
 			case Symbol.OR:          

@@ -139,6 +139,7 @@ public class Lex {
 		}
 
 		symbol.setValue(BigDecimal.valueOf(intValue));
+		symbol.setIntValue(intValue);
 		
 		if (base == 10) {  // check for double value
 			boolean numIsDouble = false;

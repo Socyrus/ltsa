@@ -1,3 +1,7 @@
+/*
+ * modified by Junyuan Zhang
+ * added method findMoreTraces()
+ */
 package lts;
 
 import java.util.ArrayList;

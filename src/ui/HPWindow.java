@@ -1,3 +1,11 @@
+/*
+ * modified by Junyuan Zhang
+ * Sept, 9th, 2015
+ * 
+ * added trace_produce_options
+ * added class TraceProduceOptionListener
+ * added method setTraceProduceOption()
+ */
 package ui;
 
 // This is an experimental version with progress & LTL property check
@@ -87,6 +95,7 @@ import lts.RandomSeedDialog;
 import lts.Relation;
 import lts.RunMenu;
 import lts.SuperTrace;
+import lts.TraceProduceOptions;
 import lts.ltl.AssertDefinition;
 import lts.ltl.FormulaFactory;
 import lts.util.MTSUtils;
@@ -152,7 +161,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 			build_parse, build_compile, build_compose, build_minimise,
 			help_about, supertrace_options, mtsRefinement, mtsConsistency,
 			checkDeadlock, controllerSynthesis, menu_enactment_run,
-			menu_enactment_options;
+			menu_enactment_options, trace_produce_options;
 
 	// >>> AMES: Deadlock Insensitive Analysis
 	JMenuItem check_safe_no_deadlock;
@@ -467,6 +476,13 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		supertrace_options = new JMenuItem("Set Supertrace parameters");
 		supertrace_options.addActionListener(new SuperTraceOptionListener());
 		option.add(supertrace_options);
+		
+		//set trace produce options
+		
+		trace_produce_options = new JMenuItem("Set trace produce parameters");
+		trace_produce_options.addActionListener(new TraceProduceOptionListener());
+		option.add(trace_produce_options);
+		
 		option.addSeparator();
 		setBigFont = new JCheckBoxMenuItem("Use big font");
 		setBigFont.addActionListener(opt);
@@ -1278,6 +1294,12 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 			setSuperTraceOption();
 		}
 	}
+	
+	class TraceProduceOptionListener implements ActionListener {
+		public void actionPerformed(ActionEvent e){
+			setTraceProduceOptions();
+		}
+	}
 
 	class WinAlphabetAction implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
@@ -1948,6 +1970,30 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		} catch (NumberFormatException e) {
 		}
 	}
+	
+	// ----------------------------------------------------------------------
+	
+	 private void setTraceProduceOptions()
+	 {
+			try {
+				String o = (String) JOptionPane.showInputDialog(this,
+						"Enter trace number to be produced:",
+						"Trace produce parameters", JOptionPane.PLAIN_MESSAGE, null,
+						null, "" + TraceProduceOptions.getTraceNumber());
+				if (o == null)
+					return;
+				TraceProduceOptions.setTraceNumber(Integer.parseInt(o));
+				o = (String) JOptionPane.showInputDialog(this,
+						"Enter maximum similarity:",
+						"Supertrace parameters", JOptionPane.PLAIN_MESSAGE, null,
+						null, "" + TraceProduceOptions.getMaxSimilarity());
+				if (o == null)
+					return;
+				TraceProduceOptions.setMaxSimilarity(Integer.parseInt(o));
+			} catch (NumberFormatException e) {
+			}
+		}
+	
 
 	// -------------------------------------------------------------------------
 

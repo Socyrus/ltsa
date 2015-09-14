@@ -5,6 +5,7 @@
  * added trace_produce_options
  * added class TraceProduceOptionListener
  * added method setTraceProduceOption()
+ * added menu_translation, asynchronous, synchronous, save_translate
  */
 package ui;
 
@@ -95,6 +96,7 @@ import lts.RandomSeedDialog;
 import lts.Relation;
 import lts.RunMenu;
 import lts.SuperTrace;
+import lts.SynTranslation;
 import lts.TraceProduceOptions;
 import lts.ltl.AssertDefinition;
 import lts.ltl.FormulaFactory;
@@ -151,7 +153,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	protected UndoManager undo = new UndoManager();
 
 	JMenu file, edit, check, build, window, help, option, mts, menu_enactment,
-			menu_enactment_enactors;
+			menu_enactment_enactors, menu_translation;
 	JMenuItem file_new, file_open, file_save, file_saveAs, file_export,
 			file_exit, edit_cut, edit_copy, edit_paste, edit_undo,
 			edit_redo,
@@ -161,7 +163,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 			build_parse, build_compile, build_compose, build_minimise,
 			help_about, supertrace_options, mtsRefinement, mtsConsistency,
 			checkDeadlock, controllerSynthesis, menu_enactment_run,
-			menu_enactment_options, trace_produce_options;
+			menu_enactment_options, trace_produce_options, asynchronous, synchronous, save_translation;
 
 	// >>> AMES: Deadlock Insensitive Analysis
 	JMenuItem check_safe_no_deadlock;
@@ -531,6 +533,14 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 			if (schedulerNames.size() > 0)
 				this.enactmentOptions.scheduler = schedulerNames.get(0);
 		}
+		
+		
+		menu_translation = new JMenu("Translation");
+		mb.add(menu_translation);
+		
+		synchronous = new JMenuItem("Synchronous");
+		synchronous.addActionListener(new DoAction(DO_TRANSLATION_SYNCHRONOUS));
+		menu_translation.add(synchronous);
 
 		// >>> AMES: SET Compositional Learning, Interface Learning
 		// Set<JMenu> menus = new HashSet<JMenu>();
@@ -786,6 +796,10 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	private final static int DO_safety_multi_ce = 20;
 	// <<< AMES
 	private static final int DO_GRAPH_UPDATE = 22;
+	
+	//added by Junyuan Zhang
+	private static final int DO_TRANSLATION_SYNCHRONOUS = 23;
+	private static final int DO_TRANSLATION_ASYNCHRONOUS = 24;
 
 	private int theAction = 0;
 	private Thread executer;
@@ -833,6 +847,10 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 			case DO_reachable:
 				showOutput();
 				reachable();
+				break;
+			case DO_TRANSLATION_SYNCHRONOUS:		
+				showOutput();
+				translation_synchronous(get_save_translation_dir());
 				break;
 			case DO_compile:
 				showOutput();
@@ -1630,6 +1648,38 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		}
 		postState(current);
 		return true;
+	}
+	
+	
+	//added by Junyuan Zhang
+	private boolean translation_synchronous(String save_directory){
+		clearOutput();
+		if (save_directory == null) return false;
+		
+		
+		/*Process proc;
+		try {
+			proc = Runtime.getRuntime().exec("python /Users/Socyrus/Documents/work/ImperialCollege/translate/translate/translate.py " +currentDirectory+openFile+" "+save_directory);
+			proc.waitFor();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}  */
+		
+		SynTranslation s = new SynTranslation();
+		s.translate(currentDirectory+openFile, save_directory, this);
+		  
+		outln("translation complete");
+		
+		return true;
+	}
+	
+	private String get_save_translation_dir(){
+		FileDialog fd = new FileDialog(this, "Save file in:", FileDialog.SAVE);
+		if (currentDirectory != null)
+			fd.setDirectory(currentDirectory);
+		fd.setVisible(true);
+		
+		return fd.getDirectory()+fd.getFile();
 	}
 
 	/* AMES: promoted visibility from private to implement lts.LTSOutput */

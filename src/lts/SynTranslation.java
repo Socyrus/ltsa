@@ -678,7 +678,7 @@ public class SynTranslation {
 			return false;
 		}
 		
-		System.out.println("Fluents:");
+		/*System.out.println("Fluents:");
 		for (String fluent:fluentList){
 			System.out.print(" "+fluent);
 			System.out.println();
@@ -729,7 +729,7 @@ public class SynTranslation {
 		System.out.println("goalRight:");
 		for (String right: goalRight){
 			System.out.println(right);
-		}
+		}*/
 		BufferedWriter writer = null;
 		
 		try {
@@ -746,6 +746,8 @@ public class SynTranslation {
 			printInitialValue(writer);
 			
 			printGoals(writer);
+			
+			writer.write(modes);
 			
 			writer.close();
 			

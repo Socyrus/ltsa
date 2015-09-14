@@ -335,7 +335,10 @@ public class SynTranslation {
 				initiates.get(fluentName).add(splits[1].substring(m.start(), m.end()));
 			}else{
 				if (splits[1].substring(m.start(), m.end()).equals("initially")){
-					initialValue.add(fluentName);
+					assert(m.find());
+					String tmp = splits[1].substring(m.start(), m.end());
+					if (tmp.equals("1") || tmp.toLowerCase().equals("true"))
+						initialValue.add(fluentName);
 					break;
 				}
 				terminates.get(fluentName).add(splits[1].substring(m.start(), m.end()));

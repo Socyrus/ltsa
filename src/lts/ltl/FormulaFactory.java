@@ -16,6 +16,10 @@ import lts.Expression;
 import lts.Symbol;
 
 /*
+ * modified by Junyuan Zhang
+ * function make() modified to process bounded ALWAYS expression
+ */
+/*
 * factory for LTL formlae
 */
 

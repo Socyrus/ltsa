@@ -474,7 +474,7 @@ public class SynTranslation {
 		int nTimepoint = 12;
 		writer.write("timepoint(0.."+nTimepoint+").\n");
 		
-		printSet(writer,"evnet",eventList);
+		printSet(writer,"event",eventList);
 		printSet(writer,"fluent",fluentList);
 		printSet(writer,"sys",systemList);
 		
@@ -534,8 +534,6 @@ public class SynTranslation {
 		
 		left = left.replace("tick&&", "").replace("(", "").replace(")","");
 		String[] lefts = left.split("\\|\\|");
-		for (int i=0;i<lefts.length;i++)
-			System.out.println(lefts[i]);
 		
 		String[] rights = right.split(" W ");
 		for (int i=0;i<rights.length;i++){
@@ -607,12 +605,11 @@ public class SynTranslation {
 			String left = goalLeft.pop();
 			String right = goalRight.pop();
 			String[] leftList = left.split("\\|\\|");
-			String[] rightList = right.split("&&");
+		
 			
-			for (int i=0;i<leftList.length;i++)
-				for (int j=0;j<rightList.length;j++){
+			for (int i=0;i<leftList.length;i++){
 					String condition[] = leftList[i].split("&&");
-					String result[]  = rightList[j].split("\\|\\|");
+					String result[]  = right.split("\\|\\|");
 					
 					writer.write(":-scenario(S), timepoint(T),\n");
 					for (int k=0; k<result.length;k++){
@@ -621,7 +618,8 @@ public class SynTranslation {
 					
 					for (int k=0; k<condition.length;k++)
 						printHoldsAt(writer, k==result.length-1, true, condition[k], false);
-				}
+			
+			}
 		}
 	}
 	

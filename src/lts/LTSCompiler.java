@@ -1,3 +1,8 @@
+/*
+ * modified by Junyuan Zhang
+ * ltl_unary -> ALWAYS
+ * setDefinition().
+ */
 package lts;
 
 import static lts.util.MTSUtils.getMaybeAction;

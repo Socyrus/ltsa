@@ -1,0 +1,257 @@
+
+% *******************************
+% --*** BACKGROUND THEORY ***---
+% *******************************
+
+% --*** DOMAIN INDEPENDENT AXIOMS ***---
+
+% (EC1)
+clipped(T1,F,T2,S) :-
+		  	timepoint(T),
+               		timepoint(T1),
+                    	timepoint(T2),
+                    	fluent(F),
+                    	event(E),
+		    	scenario(S),
+                    	happens(E,T,S),
+                    	T1<=T,
+                    	T<T2,
+                    	terminates(E,F).
+% (EC2)
+declipped(T1,F,T2,S) :-
+			timepoint(T),
+                   	timepoint(T1),
+                    	timepoint(T2),
+                    	fluent(F),
+                    	event(E),
+		    	scenario(S),
+                   	happens(E,T,S),
+                    	T1<=T,
+                    	T<T2,
+                    	initiates(E,F).
+
+% (EC3)
+stopped_in(T1,F,T2,S) :-
+			timepoint(T),
+                       	timepoint(T1),
+                       	timepoint(T2),
+                       	fluent(F),
+                       	event(E),
+			scenario(S),
+                       	happens(E,T,S),
+                       	T1<T,
+                       	T<T2,
+                       	terminates(E,F).
+
+% (EC4)
+started_in(T1,F,T2,S) :-
+			timepoint(T),
+                       	timepoint(T1),
+                       	timepoint(T2),
+                       	fluent(F),
+                       	event(E),
+			scenario(S),
+                       	happens(E,T,S),
+                       	T1<T,
+                       	T<T2,
+                       	initiates(E,F).
+
+% (EC5)
+holds_at(F,T2,S) :-
+				timepoint(T1),
+                      	timepoint(T2),
+                      	fluent(F),
+                      	event(E),
+				scenario(S),
+                      	happens(E,T1,S),
+                      	initiates(E,F),
+                      	T1<T2,
+                      	not stopped_in(T1,F,T2,S).
+% (EC7)
+holds_at(F,T2,S) :-
+				timepoint(T1),
+                  	timepoint(T2),
+                  	fluent(F), scenario(S),
+                  	holds_at(F,T1,S),
+                  	T1<T2,
+                  	not clipped(T1,F,T2,S).
+
+% (EC8)
+holds_at(F,0,S):-
+			fluent(F),
+			scenario(S),
+			initially(F,S).
+% (EC9)
+happens(A,P,S):-
+			event(A),
+			scenario(S),
+			timepoint(P),
+		 	executed(A,P,S),
+			not impossible(A,P,S).
+
+% (EC10)
+holds_at_tick(F,P,S):-
+			scenario(S),
+			fluent(F),
+			timepoint(P),
+         		happens(tick,P,S),
+			holds_at(F,P,S).
+
+% (EC11)
+not_holds_at_tick(F,P,S):-
+			scenario(S),
+			fluent(F),
+			timepoint(P),
+        		happens(tick,P,S),
+			not holds_at(F,P,S).
+
+% (EC12)
+holds_at_prev_tick(F,P,S):-
+         		scenario(S),
+			fluent(F),
+			timepoint(P),
+			timepoint(P0),
+			P0<P,
+         		happens(tick,P0,S),
+			holds_at(F,P0,S),
+			not happens_in_between(tick,P0,P,S).
+
+% (EC13)
+not_holds_at_prev_tick(F,P,S):-
+         		scenario(S),
+			fluent(F),
+			timepoint(P),
+			timepoint(P0),
+			P0<P,
+			happens(tick,P0,S),
+         		not_holds_at_tick(F,P0,S),
+			not happens_in_between(tick,P0,P,S).
+% (EC14)
+happens_since_last_tick(E,P1,S):-
+			event(E),
+			scenario(S),
+			timepoint(P1),
+			timepoint(P0),P0<P1,
+			prev_tick(P1,P0,S),
+			happens_in_between(E,P0,P1,S).
+
+% (EC15)
+not_happens_since_last_tick(E,P1,S):-
+			event(E),
+			scenario(S),
+			timepoint(P1),
+			timepoint(P0),
+			P0<P1,
+			prev_tick(P1,P0,S),
+			not happens_in_between(E,P0,P1,S).
+
+% (EC16)
+happens_in_between(E,P0,P1,S):-
+			event(E),
+			scenario(S),
+			timepoint(P1),
+			timepoint(P0),
+			P0<P1,
+			timepoint(P),
+			P0<P,
+			P<P1,
+			happens(E,P,S).
+
+% --*** AUXILIARY AXIOMS ***---
+
+next_tick_at(P1,P2,S):-
+		scenario(S),
+		timepoint(P1),
+		timepoint(P2),
+		P1<P2,
+		happens(tick,P1,S),
+		happens(tick,P2,S),
+		not happens_in_between(tick,P1,P2,S).
+
+prev_tick(P1,P0,S):-
+		timepoint(P0),
+		timepoint(P1),
+		scenario(S),
+		P0<P1,
+         	happens(tick,P0,S),
+		not happens_in_between(tick,P0,P1,S).
+
+% --*** CONSTRAINTS  ***---
+
+:- timepoint(T),
+	event(A1),event(A2),
+	A1 != A2, scenario(S),
+	executed(A1,T,S),
+	executed(A2,T,S).
+
+:- timepoint(T),
+	event(A1),event(A2),
+    A1 != A2, scenario(S),
+	happens(A1,T,S),
+	happens(A2,T,S).
+
+:- event(A),scenario(S),timepoint(P),
+		happens(A,P,S),
+		impossible(A,P,S).
+% --*** TYPES ***---
+timepoint(0..12).
+event(switchPumpOff;belowHigh;signalMethane;signalNoMethane;belowLow;switchPumpOn;tick;aboveLow;aboveHigh).
+fluent(pumpOn;methane;lowWater;highWater).
+sys(belowHigh;belowLow;aboveLow;aboveHigh).
+
+
+ --*** DOMAIN POSTCONDITIONS ***--
+
+initiates(switchPumpOn,pumpOn).
+initiates(signalMethane,methane).
+initiates(belowLow,lowWater).
+initiates(aboveHigh,highWater).
+terminates(switchPumpOff,pumpOn).
+terminates(signalNoMethane,methane).
+terminates(aboveLow,lowWater).
+terminates(belowHigh,highWater).
+
+
+% --*** DOMAIN PRECONDITIONS ***---
+impossible(signalMethane,T,S):-
+		scenario(S),
+		timepoint(T),
+		holds_at_prev_tick(methane,T,S).
+impossible(signalNoMethane,T,S):-
+		scenario(S),
+		timepoint(T),
+		not_holds_at_prev_tick(methane,T,S).
+impossible(switchPumpOff,T,S):-
+		scenario(S),
+		timepoint(T),
+		not_holds_at_prev_tick(pumpOn,T,S).
+impossible(switchPumpOn,T,S):-
+		scenario(S),
+		timepoint(T),
+		holds_at_prev_tick(pumpOn,T,S).
+% --*** INITIAL STATE ***--
+
+initially(lowWater,S):-
+		scenario(S).
+% --*** GOALS ***--
+
+:-scenario(S), timepoint(T),
+		not_holds_at_tick(pumpOn,T,S),
+		holds_at_prev_tick(highWater,T,S).
+		not_holds_at_prev_tick(methane,T,S),
+:-scenario(S), timepoint(T),
+		holds_at_tick(pumpOn,T,S),
+		holds_at_prev_tick(lowWater,T,S).
+:-scenario(S), timepoint(T),
+		holds_at_tick(pumpOn,T,S),
+		holds_at_prev_tick(methane,T,S).
+% ----*** MODES ***----
+#modeh impossible($sys,+timepoint,+scenario).
+
+#modeb holds_at_tick($fluent,+timepoint,+scenario).
+#modeb not_holds_at_tick($fluent,+timepoint,+scenario).
+#modeb holds_at_prev_tick($fluent,+timepoint,+scenario).
+#modeb not_holds_at_prev_tick($fluent,+timepoint,+scenario).
+#modeb not happens_since_last_tick($sys,+timepoint,+scenario).
+#modeb happens_since_last_tick($sys,+timepoint,+scenario).
+

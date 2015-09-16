@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.Vector;
 
 import lts.ltl.FluentTrace;
+import lts.TraceProduceOptions;
 import lts.util.LTSUtils;
 
 public class Analyser implements Animator, Automata {
@@ -404,7 +405,7 @@ public class Analyser implements Animator, Automata {
 	public boolean checkContainActions(LinkedList<Integer> trace, String[] actionNames){
 		HashSet<String> actions = new HashSet<String>();
 		for (String action:TraceProduceOptions.getContainActions().split(";")){
-			if (action == "" || actions.contains(action)) continue;
+			if (action.equals("") || actions.contains(action)) continue;
 			
 			actions.add(action);
 		}

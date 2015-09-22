@@ -609,7 +609,9 @@ public class AsynTranslation {
 			writer.close();
 			
 		} catch (IOException e) {
+			window.outln("IO Exception caught while writing file");
 			e.printStackTrace();
+			return false;
 		}
 		
 		return true;

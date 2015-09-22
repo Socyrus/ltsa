@@ -1668,9 +1668,10 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		if (save_directory == null) return false;
 		
 		SynTranslation s = new SynTranslation();
-		s.translate(currentDirectory+openFile, save_directory, this);
-		  
-		outln("translation complete");
+		if (s.translate(currentDirectory+openFile, save_directory, this))
+		  	outln("translation complete");
+		  else
+			outln("translation failed");
 		
 		return true;
 	}
@@ -1680,9 +1681,10 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		if (save_directory == null) return false;
 		
 		AsynTranslation s = new AsynTranslation();
-		s.translate(currentDirectory+openFile, save_directory, this);
-		  
-		outln("translation complete");
+		if (s.translate(currentDirectory+openFile, save_directory, this))
+		  outln("translation complete");
+		else
+		  outln("translation failed");
 		
 		return true;
 	}
